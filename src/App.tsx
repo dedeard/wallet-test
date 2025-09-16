@@ -1,39 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import init from '@web3-onboard/core'
+import { useConnectWallet } from '@web3-onboard/react'
+import phantomModule from '@web3-onboard/phantom'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+const phantom = phantomModule()
+
+init({
+  wallets: [phantom],
+  chains: [
+    {
+      id: '0x65',
+      token: 'SOL',
+      label: 'Solana Mainnet',
+      rpcUrl: 'https://api.mainnet-beta.solana.com'
+    }
+  ]
+})
+
 function App() {
   const [count, setCount] = useState(0)
-  const [wallet, setWallet] = useState<string | null>(null)
-
-  const connectWallet = async () => {
-    if (window.solana && window.solana.isPhantom) {
-      const response = await window.solana.connect()
-      setWallet(response.publicKey.toString())
-    } else {
-      const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}?ref=${encodeURIComponent(window.location.href)}`
-      window.open(deepLink, '_blank')
-    }
-  }
-
-  const disconnectWallet = () => {
-    if (window.solana) {
-      window.solana.disconnect()
-      setWallet(null)
-    }
-  }
-
-  useEffect(() => {
-    if (window.solana && window.solana.isPhantom) {
-      window.solana.on('connect', () => {
-        setWallet(window.solana?.publicKey.toString() || null)
-      })
-      window.solana.on('disconnect', () => {
-        setWallet(null)
-      })
-    }
-  }, [])
+  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet()
 
   return (
     <>
@@ -65,13 +54,13 @@ function App() {
       <h1>Vite + React</h1>
       <div className="card">
         {!wallet ? (
-          <button onClick={connectWallet}>
-            Connect Phantom Wallet
+          <button onClick={() => connect()} disabled={connecting}>
+            {connecting ? 'Connecting...' : 'Connect Wallet'}
           </button>
         ) : (
           <div>
-            <p>Connected: {wallet.slice(0, 8)}...{wallet.slice(-8)}</p>
-            <button onClick={disconnectWallet}>Disconnect</button>
+            <p>Connected: {wallet.accounts[0].address.slice(0, 8)}...{wallet.accounts[0].address.slice(-8)}</p>
+            <button onClick={() => disconnect(wallet)}>Disconnect</button>
           </div>
         )}
         <button onClick={() => setCount((count) => count + 1)}>
