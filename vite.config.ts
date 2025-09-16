@@ -5,9 +5,9 @@ import { readFileSync } from 'fs';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/vid/',
   server: {
-  
-      https: {
+    https: {
       key: readFileSync(path.resolve(__dirname, 'ssl/key.pem')),
       cert: readFileSync(path.resolve(__dirname, 'ssl/cert.pem')),
     },

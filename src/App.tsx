@@ -27,7 +27,7 @@ function App() {
   useEffect(() => {
     if (window.solana && window.solana.isPhantom) {
       window.solana.on('connect', () => {
-        setWallet(window.solana.publicKey.toString())
+        setWallet(window.solana?.publicKey.toString() || null)
       })
       window.solana.on('disconnect', () => {
         setWallet(null)
