@@ -1,28 +1,13 @@
 import { useState } from 'react'
-import init from '@web3-onboard/core'
-import { useConnectWallet } from '@web3-onboard/react'
-import phantomModule from '@web3-onboard/phantom'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-const phantom = phantomModule()
-
-init({
-  wallets: [phantom],
-  chains: [
-    {
-      id: '0x65',
-      token: 'SOL',
-      label: 'Solana Mainnet',
-      rpcUrl: 'https://api.mainnet-beta.solana.com'
-    }
-  ]
-})
-
 function App() {
   const [count, setCount] = useState(0)
-  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet()
+  const { publicKey, connected } = useWallet()
 
   return (
     <>
@@ -53,15 +38,9 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        {!wallet ? (
-          <button onClick={() => connect()} disabled={connecting}>
-            {connecting ? 'Connecting...' : 'Connect Wallet'}
-          </button>
-        ) : (
-          <div>
-            <p>Connected: {wallet.accounts[0].address.slice(0, 8)}...{wallet.accounts[0].address.slice(-8)}</p>
-            <button onClick={() => disconnect(wallet)}>Disconnect</button>
-          </div>
+        <WalletMultiButton />
+        {connected && publicKey && (
+          <p>Connected: {publicKey.toString().slice(0, 8)}...{publicKey.toString().slice(-8)}</p>
         )}
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
